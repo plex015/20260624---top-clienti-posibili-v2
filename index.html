@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Top clienti posibili | Sales workspace</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23006b68'/%3E%3Cpath d='M16 18h32v8H28v8h17v8H28v14H16z' fill='white'/%3E%3C/svg%3E">
+</head>
+<body>
+  <aside class="sidebar" aria-label="Panou filtre">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <strong>Sales Leads</strong>
+        <span>Clienti posibili Romania</span>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label for="searchInput">Cautare</label>
+      <input id="searchInput" type="search" placeholder="firma, oras, CUI, produs...">
+    </div>
+
+    <div class="filter-group">
+      <label for="categoryFilter">Categorie</label>
+      <select id="categoryFilter"></select>
+    </div>
+
+    <div class="filter-group">
+      <label for="countyFilter">Judet</label>
+      <select id="countyFilter"></select>
+    </div>
+
+    <div class="filter-group">
+      <label for="ownerFilter">Agent</label>
+      <select id="ownerFilter"></select>
+    </div>
+
+    <div class="filter-group">
+      <label for="statusFilter">Status</label>
+      <select id="statusFilter">
+        <option value="">Toate statusurile</option>
+        <option value="Nealocat">Nealocat</option>
+        <option value="De contactat">De contactat</option>
+        <option value="Contactat">Contactat</option>
+        <option value="Calificat">Calificat</option>
+        <option value="Oferta">Oferta</option>
+        <option value="Pierdut">Pierdut</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="priorityFilter">Prioritate</label>
+      <select id="priorityFilter">
+        <option value="">Toate prioritatile</option>
+        <option value="Ridicata">Ridicata</option>
+        <option value="Medie">Medie</option>
+        <option value="Scazuta">Scazuta</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button id="clearFilters" type="button" class="button muted">Reset filtre</button>
+    </div>
+
+    <section class="sales-team">
+      <div class="section-title">
+        <h2>Agenti</h2>
+        <button id="addRepBtn" type="button" class="icon-btn" title="Adauga agent">+</button>
+      </div>
+      <div id="repList" class="rep-list"></div>
+    </section>
+  </aside>
+
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Interfata locala</p>
+        <h1>Gasire si impartire clienti intre vanzari</h1>
+      </div>
+      <div class="top-actions">
+        <button id="exportCsvBtn" type="button" class="button">Export CSV</button>
+        <button id="exportBackupBtn" type="button" class="button secondary">Backup alocari</button>
+        <label class="button secondary file-button">
+          Import backup
+          <input id="importBackupInput" type="file" accept="application/json">
+        </label>
+      </div>
+    </header>
+
+    <section class="stats-grid" aria-label="Indicatori">
+      <article class="stat">
+        <span>Total</span>
+        <strong id="totalCount">0</strong>
+      </article>
+      <article class="stat">
+        <span>Afisate</span>
+        <strong id="visibleCount">0</strong>
+      </article>
+      <article class="stat">
+        <span>Selectate</span>
+        <strong id="selectedCount">0</strong>
+      </article>
+      <article class="stat">
+        <span>Nealocate</span>
+        <strong id="unassignedCount">0</strong>
+      </article>
+      <article class="stat">
+        <span>Cu prioritate ridicata</span>
+        <strong id="hotCount">0</strong>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <div class="toolbar">
+        <div class="selection-tools">
+          <button id="selectVisibleBtn" type="button" class="tool">Selecteaza afisate</button>
+          <button id="clearSelectionBtn" type="button" class="tool">Goleste selectia</button>
+          <button id="autoDistributeBtn" type="button" class="tool strong">Imparte selectia egal</button>
+        </div>
+        <div class="batch-tools">
+          <select id="batchOwner"></select>
+          <button id="assignSelectedBtn" type="button" class="tool">Atribuie</button>
+          <select id="batchStatus">
+            <option value="">Status...</option>
+            <option value="De contactat">De contactat</option>
+            <option value="Contactat">Contactat</option>
+            <option value="Calificat">Calificat</option>
+            <option value="Oferta">Oferta</option>
+            <option value="Pierdut">Pierdut</option>
+          </select>
+          <button id="statusSelectedBtn" type="button" class="tool">Seteaza status</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="select-col"></th>
+              <th>Client</th>
+              <th>Locatie</th>
+              <th>Segment</th>
+              <th>Capacitate</th>
+              <th>Agent</th>
+              <th>Status</th>
+              <th>Prioritate</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="leadRows"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button id="prevPage" type="button" class="tool">Inapoi</button>
+        <span id="pageInfo">Pagina 1</span>
+        <button id="nextPage" type="button" class="tool">Inainte</button>
+      </div>
+    </section>
+  </main>
+
+  <template id="rowTemplate">
+    <tr>
+      <td class="select-col"><input class="row-select" type="checkbox"></td>
+      <td>
+        <div class="client-name"></div>
+        <div class="client-meta"></div>
+      </td>
+      <td>
+        <div class="location"></div>
+        <div class="address"></div>
+      </td>
+      <td>
+        <div class="category"></div>
+        <div class="product"></div>
+      </td>
+      <td class="capacity"></td>
+      <td><select class="owner-select"></select></td>
+      <td><select class="status-select"></select></td>
+      <td><select class="priority-select"></select></td>
+      <td><textarea class="note-input" rows="2" placeholder="urmatorul pas..."></textarea></td>
+    </tr>
+  </template>
+
+  <script src="data/leads.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
