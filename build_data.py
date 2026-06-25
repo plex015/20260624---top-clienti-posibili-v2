@@ -10,9 +10,9 @@ import pandas as pd
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "data"
 OUTPUT_FILE = OUTPUT_DIR / "leads.js"
-INCLUDED_WORKBOOKS = [
-    "Lista_Fabrici_Armament_Romania.xlsx",
-]
+EXCLUDED_WORKBOOKS = {
+    "Lista_Unitati_Militare_Romania.xlsx",
+}
 
 
 CATEGORY_LABELS = {
@@ -51,11 +51,9 @@ def lead_id(source: str, row_number: int, name: str, operator: str, address: str
 
 def read_leads() -> list[dict]:
     leads: list[dict] = []
-    for workbook_name in INCLUDED_WORKBOOKS:
-        workbook = BASE_DIR / workbook_name
-        if not workbook.exists():
-            raise FileNotFoundError(f"Missing workbook: {workbook}")
-
+    for workbook in sorted(BASE_DIR.glob("*.xlsx")):
+        if workbook.name in EXCLUDED_WORKBOOKS:
+            continue
         category = CATEGORY_LABELS.get(workbook.name, workbook.stem.replace("_", " "))
         df = pd.read_excel(workbook).fillna("")
         for index, row in df.iterrows():
